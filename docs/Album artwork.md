@@ -10,7 +10,7 @@ nav_order: 3
 {: .no_toc .text-delta }
 
 * TOC
-  {:toc}
+{:toc}
 
 ---
 
@@ -57,8 +57,6 @@ Fill the form and for authorization type make sure to select "OAuth 2 authorizat
 After obtaining the API client id you can move on to the code.
 
 The code can be found from [this file](assets/upload_scripts/imgur_upload.py) or from the snippet below.
-<details>
-  <summary>Code snippet</summary>
 
   ```py
 import requests
@@ -85,7 +83,6 @@ if not r.ok:
 
 print(r.json()['data']['link'], end='')
   ```
-</details>
 
 After saving the script on your machine, replace the part that says 
 `Insert imgur api client id here` with the client id you obtained earlier while keeping the single quotes in place (`'`)
