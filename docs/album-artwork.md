@@ -34,7 +34,7 @@ The last option is called Artwork identifier key, and it is better left untouche
 
 Below is an image of an example configuration using a python script for uploading.
 
-![Artwork upload settings](assets/img/artwork_upload_settings.png)
+![Artwork upload settings](/assets/img/artwork_upload_settings.png)
 
 
 
@@ -45,14 +45,14 @@ Use them at your own discretion, we are not responsible for any damages or other
 
 ### Imgur uploader standalone
 This one is the easiest to install and use as it's just a single exe that you need download.
-You can find the latest release here https://github.com/s0hv/rust-imgur-upload/releases/latest
+You can find the latest release here [https://github.com/s0hv/rust-imgur-upload/releases/latest](https://github.com/s0hv/rust-imgur-upload/releases/latest)
 Then, to use it, just copy the path to the Artwork upload command like so `"C:\path\to\imgur-uploader.exe"`.
 After this the album art feature should start working.
 
 ### Imgur upload script for Python 3.7 or later
 This one requires a bit of technical knowledge but it's easier to customize for other needs if you have basic coding skills. 
 You need to have python 3.7 or later installed along with the requests library.
-Also, you need to obtain an imgur API token from here https://api.imgur.com/oauth2/addclient (more instructions can be found here https://apidocs.imgur.com/#intro).
+Also, you need to obtain an imgur API token from here [https://api.imgur.com/oauth2/addclient](https://api.imgur.com/oauth2/addclient) (more instructions can be found here [https://apidocs.imgur.com/#intro](https://apidocs.imgur.com/#intro)).
 Fill the form and for authorization type make sure to select "OAuth 2 authorization without a callback URL".
 After obtaining the API client id you can move on to the code.
 
