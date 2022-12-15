@@ -34,7 +34,7 @@ The last option is called Artwork identifier key, and it is better left untouche
 
 Below is an image of an example configuration using a python script for uploading.
 
-![Artwork upload settings](/assets/img/artwork_upload_settings.png)
+![Artwork upload settings]({{ site.baseurl }}/assets/img/artwork_upload_settings.png)
 
 
 
@@ -56,7 +56,7 @@ Also, you need to obtain an imgur API token from here [https://api.imgur.com/oau
 Fill the form and for authorization type make sure to select "OAuth 2 authorization without a callback URL".
 After obtaining the API client id you can move on to the code.
 
-The code can be found from [this file](assets/upload_scripts/imgur_upload.py) or from the snippet below.
+The code can be found from [this file]({{ site.baseurl }}/assets/upload_scripts/imgur_upload.py) or from the snippet below.
 
   ```py
 import requests
