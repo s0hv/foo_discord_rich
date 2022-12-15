@@ -1,6 +1,6 @@
 ---
-title: Frequesntly Asked Questions
-nav_order: 3
+title: Frequently Asked Questions
+nav_order: 4
 ---
 
 # Installation
