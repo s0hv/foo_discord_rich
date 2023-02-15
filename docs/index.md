@@ -17,7 +17,7 @@ permalink: /
 
 ---
 
-![foo_discord_rich](https://github.com/s0hv/foo_discord_rich/blob/gh-pages/assets/img/foo_discord_rich.png?raw=true)
+![foo_discord_rich](assets/img/foo_discord_rich.png)
 
 This is a component for the [foobar2000](https://www.foobar2000.org) audio player, which displays currently played track data via Discord Rich Presence.
 
