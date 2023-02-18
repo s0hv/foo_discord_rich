@@ -18,8 +18,9 @@ markdown: kramdown
 kramdown:
   parse_block_html: true
 
-baseurl: "/foo_discord_rich/" 
+baseurl: "/foo_discord_rich/"
 url: "https://s0hv.github.io"
+username: s0hv
 
 permalink: pretty
 

@@ -22,5 +22,5 @@ nav_order: 2
 
 ## Installation
 
-1. Download the [latest release](https://github.com/s0hv/foo_discord_rich/releases/latest) (you only need `foo_discord_rich.fb2k-component`).
-1. Install the component using the [following instructions](http://wiki.hydrogenaud.io/index.php?title=Foobar2000:How_to_install_a_component).
+1. Download the [latest release](https://github.com/{{ site.username }}/foo_discord_rich/releases/latest) (you only need `foo_discord_rich.fb2k-component`).
+2. Install the component using the [following instructions](http://wiki.hydrogenaud.io/index.php?title=Foobar2000:How_to_install_a_component).

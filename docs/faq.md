@@ -15,8 +15,8 @@ nav_order: 4
 ---
 
 #### How do I display album art instead of fb2k logo?
-
-Discord limitation: see [#6](https://github.com/TheQwertiest/foo_discord_rich/issues/6) for more info.
+In the works. See [docs]({{ site.baseurl }}docs/album-artwork).  
+~~Discord limitation: see [#6](https://github.com/TheQwertiest/foo_discord_rich/issues/6) for more info.~~
 <br><br>
 
 #### Is it possible to change "Playing" to "Listening to"?

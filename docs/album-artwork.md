@@ -56,33 +56,7 @@ Also, you need to obtain an imgur API token from here [https://api.imgur.com/oau
 Fill the form and for authorization type make sure to select "OAuth 2 authorization without a callback URL".
 After obtaining the API client id you can move on to the code.
 
-The code can be found from [this file]({{ site.baseurl }}/assets/upload_scripts/imgur_upload.py) or from the snippet below.
-
-  ```py
-import requests
-import sys
-
-url = "https://api.imgur.com/3/image"
-
-sys.stdin.reconfigure(encoding='utf-8')
-filename = sys.stdin.read().strip()
-client_id = 'Insert imgur api client id here'
-
-headers = {
-    'Authorization': f'Client-ID {client_id}'
-}
-
-with open(filename, 'rb') as f:
-    r = requests.post(url, headers=headers, files={
-        'image': f
-    })
-
-if not r.ok:
-    print(r.text[:1000])
-    exit(1)
-
-print(r.json()['data']['link'], end='')
-  ```
+The code can be found from [this gist](https://gist.github.com/s0hv/5c07cfb4b939ee619d0efcc047991ceb).
 
 After saving the script on your machine, replace the part that says 
 `Insert imgur api client id here` with the client id you obtained earlier while keeping the single quotes in place (`'`)
@@ -91,6 +65,21 @@ After you have installed python, saved the script on your machine and inserted t
 `"C:\path\to\python" "C:\path\to\imgur_upload.py"`
 
 After these steps you should start seeing the album art show up in your discord status.
+
+### Catbox uploader for Powershell 7
+This script can be used for uploading files to https://catbox.moe, or it can be modified
+for use with other sites if you know a bit of powershell.
+To use it you must have Powershell 7 installed (might work with 6, but I have not tested this). 
+One way of installing it is with [winget](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3#winget)
+Also, for full UTF-8 support you must enable UTF-8 support from 
+`Language -> Administrative language settings -> Change system locale -> Make sure this option is checked "Beta: Use Unicode UTF-8 for worldwide language support".`
+
+
+The code can be found from [this gist](https://gist.github.com/vt-idiot/8a7161a48dc6f7f7719423e938217267).
+
+After downloading set the Artwork upload command to the following value (assumes powershell 7 has been installed in the default location)
+`"C:\Program Files\PowerShell\7\pwsh.exe" "C:\path\to\catbox.ps1"`
+
 
 ## Descriptions of options
 
