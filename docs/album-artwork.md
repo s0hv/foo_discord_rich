@@ -40,10 +40,13 @@ Below is an image of an example configuration using a python script for uploadin
 
 ## Upload scripts
 
-This section will contain pre-made upload scripts for ease of use.
+This section will contain pre-made upload scripts for ease of use that are maintained and updated, if at all, separately from this plugin by their respective authors.
 Use them at your own discretion, we are not responsible for any damages or other problems the scripts might cause.
 
-### Imgur uploader standalone
+### Imgur
+Scripts to use if you want to upload album art to [https://imgur.com](https://imgur.com)
+
+### Standalone imgur uploader
 This one is the easiest to install and use as it's just a single exe that you need download.
 You can find the latest release here [https://github.com/s0hv/rust-imgur-upload/releases/latest](https://github.com/s0hv/rust-imgur-upload/releases/latest)
 Then, to use it, just copy the path to the Artwork upload command like so `"C:\path\to\imgur-uploader.exe"`.
@@ -66,20 +69,26 @@ After you have installed python, saved the script on your machine and inserted t
 
 After these steps you should start seeing the album art show up in your discord status.
 
+### Catbox
+Scripts to use if you want to upload album art to [https://catbox.moe](https://catbox.moe)
+
 ### Catbox uploader for Powershell 7
-This script can be used for uploading files to https://catbox.moe, or it can be modified
-for use with other sites if you know a bit of powershell.
-To use it you must have Powershell 7 installed (might work with 6, but I have not tested this). 
+To use this script you must have Powershell 7 installed (might work with 6, but I have not tested this). 
 One way of installing it is with [winget](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3#winget)
 Also, for full UTF-8 support you must enable UTF-8 support from 
 `Language -> Administrative language settings -> Change system locale -> Make sure this option is checked "Beta: Use Unicode UTF-8 for worldwide language support".`
-
 
 The code can be found from [this gist](https://gist.github.com/vt-idiot/8a7161a48dc6f7f7719423e938217267).
 
 After downloading set the Artwork upload command to the following value (assumes powershell 7 has been installed in the default location)
 `"C:\Program Files\PowerShell\7\pwsh.exe" "C:\path\to\catbox.ps1"`
 
+### Catbox uploader for Python 3.7 or later
+The python setup for this is the same as for [imgur script](#imgur-upload-script-for-python-37-or-later).
+The code can be found from [this gist](https://gist.github.com/mechabubba/db1200c05fbbecf753b23c92ee8e9271).
+
+After you have installed python and saved the script on your machine, you need to set the Artwork upload command as follows.
+`"C:\path\to\python" "C:\path\to\catbox_upload.py"`
 
 ## Descriptions of options
 
