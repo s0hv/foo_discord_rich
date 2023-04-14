@@ -90,6 +90,12 @@ The code can be found from [this gist](https://gist.github.com/mechabubba/db1200
 After you have installed python and saved the script on your machine, you need to set the Artwork upload command as follows.
 `"C:\path\to\python" "C:\path\to\catbox_upload.py"`
 
+### Catbox uploader written in Rust
+The code for this uploader can be found [here](https://github.com/realoksi/foobar2000-catbox)
+and the releases can be found [here](https://github.com/realoksi/foobar2000-catbox/releases).
+The installation instructions are the same as for [Standalone imgur uploader](#standalone-imgur-uploader)
+
+
 ## Descriptions of options
 
 This section contains brief descriptions for the different options on the Artwork section in the settings of this plugin.
