@@ -338,7 +338,7 @@ pfc::string8 getArtworkFilepath(const artwork_info& art, abort_callback &abort, 
         // Take the last 10 digits of current time and use that for filename.
         // Should be good enough for this purpose as the file is deleted after the operation or overwritten in the future
         const auto ts = std::to_string(std::time(NULL));
-        const auto filename = pfc::string8((ts.substr(std::max(ts.size(), 10u) - 10) + "." + ext).c_str());
+        const auto filename = pfc::string8((ts.substr(std::max(ts.size(), (size_t)10) - 10) + "." + ext).c_str());
 
         tempDir.add_filename(filename.c_str());
         filepath = tempDir;
@@ -378,7 +378,7 @@ std::wstring to_wstring(const std::string &str)
             CP_UTF8,
             0,
             str.c_str(),
-            str.length(),
+            (DWORD)str.length(),
             NULL,
             0);
 
@@ -398,7 +398,7 @@ std::wstring to_wstring(const std::string &str)
         CP_UTF8,
         0,
         str.c_str(),
-        str.length(),
+        (DWORD)str.length(),
         &str_w[0],
         (int)str_w.size() );
 
@@ -439,7 +439,7 @@ bool uploadOpenProcess(const std::wstring &cmd_w, const char* filepath_c, pfc::s
          try
          {
              DWORD dwWritten;
-             bool wSuccess = WriteFile(g_hChildStd_IN_Wr, filepath_c, strlen( filepath_c ), &dwWritten, NULL );
+             bool wSuccess = WriteFile(g_hChildStd_IN_Wr, filepath_c, (DWORD)strlen( filepath_c ), &dwWritten, NULL );
              CloseHandle( g_hChildStd_IN_Wr );
              g_hChildStd_IN_Wr = NULL;
 

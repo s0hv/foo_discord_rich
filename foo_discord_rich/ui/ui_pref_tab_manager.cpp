@@ -108,7 +108,7 @@ BOOL PreferenceTabManager::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     cTabs_ = GetDlgItem( IDC_TAB1 );
 
-    for ( size_t i = 0; i < tabs_.size(); ++i )
+    for ( int i = 0; i < static_cast<int>( tabs_.size() ); ++i )
     {
         cTabs_.InsertItem( i, tabs_[i]->Name() );
     }
@@ -165,7 +165,7 @@ void PreferenceTabManager::CreateTab()
 
     cTabs_.AdjustRect( FALSE, &tabRc );
 
-    if ( activeTabIdx_ >= tabs_.size() )
+    if ( static_cast<size_t>( activeTabIdx_ ) >= tabs_.size() )
     {
         activeTabIdx_ = 0;
     }

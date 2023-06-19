@@ -54,7 +54,7 @@ private:
     CTabCtrl cTabs_;
     CDialogImplBase* pcCurTab_ = nullptr;
 
-    size_t activeTabIdx_ = 0;
+    int activeTabIdx_ = 0;
     std::vector<std::unique_ptr<ITab>> tabs_;
 };
 

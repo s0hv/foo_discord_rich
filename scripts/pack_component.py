@@ -7,8 +7,8 @@ from zipfile import ZipFile
 
 import call_wrapper
 
-def path_basename_tuple(path):
-    return (path, path.name)
+def path_basename_tuple(path: Path, base_path=None):
+    return (path, f'{base_path}/{path.name}' if base_path else path.name)
 
 def zipdir(zip_file, path, arc_path):
     assert(path.exists() and path.is_dir())
@@ -26,8 +26,13 @@ def zipdir(zip_file, path, arc_path):
 def pack(is_debug = False):
     cur_dir = Path(__file__).parent.absolute()
     root_dir = cur_dir.parent
+
     result_machine_dir = root_dir/"_result"/("Win32_Debug" if is_debug else "Win32_Release")
     assert(result_machine_dir.exists() and result_machine_dir.is_dir())
+
+    result_machine_dir_x64 = root_dir/"_result"/("x64_Debug" if is_debug else "x64_Release")
+    assert(result_machine_dir_x64.exists() and result_machine_dir_x64.is_dir())
+
 
     output_dir = result_machine_dir
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -42,10 +47,12 @@ def pack(is_debug = False):
         z.write(*path_basename_tuple(root_dir/"CHANGELOG.md"))
 
         z.write(*path_basename_tuple(result_machine_dir/"bin"/"foo_discord_rich.dll"))
+        z.write(*path_basename_tuple(result_machine_dir_x64/"bin"/"foo_discord_rich.dll", 'x64'))
 
         if (is_debug):
             # Only debug package should have pdbs inside
             z.write(*path_basename_tuple(result_machine_dir/"dbginfo"/"foo_discord_rich.pdb"))
+            z.write(*path_basename_tuple(result_machine_dir_x64/"dbginfo"/"foo_discord_rich.pdb", 'x64'))
 
     print(f"Generated file: {component_zip}")
 
@@ -57,6 +64,7 @@ def pack(is_debug = False):
 
         with ZipFile(pdb_zip, "w", zipfile.ZIP_DEFLATED) as z:
             z.write(*path_basename_tuple(result_machine_dir/"dbginfo"/"foo_discord_rich.pdb"))
+            z.write(*path_basename_tuple(result_machine_dir_x64/"dbginfo"/"foo_discord_rich.pdb", 'x64'))
 
         print(f"Generated file: {pdb_zip}")
 

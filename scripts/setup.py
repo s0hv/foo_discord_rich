@@ -11,6 +11,7 @@ from typing import Union
 import call_wrapper
 import download_submodules
 import configure_discord_rpc
+from apply_patch import patch
 
 PathLike = Union[str, Path]
 
@@ -81,6 +82,9 @@ def setup( skip_submodules_download,
         root_dir=root_dir,
         component_name='Discord Rich Presence Integration'
     )
+
+    fb2k_patch = Path(__file__).parent.absolute().joinpath('additional_files', 'fb2k_utils_x64.patch')
+    patch([fb2k_patch])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Setup project')

@@ -15,8 +15,8 @@ namespace drp::internal
 PresenceData::PresenceData()
 {
     memset( &presence, 0, sizeof( presence ) );
-    presence.state = state.c_str();
-    presence.details = details.c_str();
+    presence.state = reinterpret_cast<const char*>( state.c_str() );
+    presence.details = reinterpret_cast<const char*>( details.c_str() );
 }
 
 PresenceData::PresenceData( const PresenceData& other )
@@ -66,10 +66,10 @@ void PresenceData::CopyData( const PresenceData& other )
     trackLength = other.trackLength;
 
     memcpy( &presence, &other.presence, sizeof( presence ) );
-    presence.state = state.c_str();
-    presence.details = details.c_str();
-    presence.largeImageKey = ( largeImageKey.empty() ? nullptr : largeImageKey.c_str() );
-    presence.smallImageKey = ( smallImageKey.empty() ? nullptr : smallImageKey.c_str() );
+    presence.state = reinterpret_cast<const char*>( state.c_str() );
+    presence.details = reinterpret_cast<const char*>( details.c_str() );
+    presence.largeImageKey = ( largeImageKey.empty() ? nullptr : reinterpret_cast<const char*>( largeImageKey.c_str() ) );
+    presence.smallImageKey = ( smallImageKey.empty() ? nullptr : reinterpret_cast<const char*>( smallImageKey.c_str() ) );
 }
 
 } // namespace drp::internal
@@ -111,10 +111,10 @@ PresenceModifier::~PresenceModifier()
     }
 }
 
-static void setImageKey(const std::u8string& imageKey, std::shared_ptr<internal::PresenceData> pd)
+static void setImageKey(const qwr::u8string& imageKey, std::shared_ptr<internal::PresenceData> pd)
 {
     pd->largeImageKey = imageKey;
-    pd->presence.largeImageKey = pd->largeImageKey.empty() ? nullptr : pd->largeImageKey.c_str();
+    pd->presence.largeImageKey = pd->largeImageKey.empty() ? nullptr : reinterpret_cast<const char*>( pd->largeImageKey.c_str() );
 }
 
 struct sharedData_t
@@ -131,14 +131,14 @@ void PresenceModifier::UpdateImage(const pfc::string8& url)
     
     if (config::largeImageSettings == config::ImageSetting::Disabled)
     {
-        setImageKey( std::u8string{}, presenceData_ );
+        setImageKey( qwr::u8string{}, presenceData_ );
         return;
     }
 
     // If cover url given use that. This is the case with some internet radios.
-    if (url.get_length() > 0)
+    if (!url.isEmpty())
     {
-        setImageKey( std::u8string( url ), presenceData_ );
+        setImageKey( url.toString(), presenceData_ );
         return;
     }
     
@@ -158,7 +158,7 @@ void PresenceModifier::UpdateImage(const pfc::string8& url)
 
             if ( rec.artwork_url.get_length() > 0 )
             {
-                setImageKey( std::u8string( rec.artwork_url ), presenceData_ );
+                setImageKey( qwr::u8string( rec.artwork_url ), presenceData_ );
                 return;
             }
         }
@@ -190,7 +190,7 @@ void PresenceModifier::UpdateImage(const pfc::string8& url)
                 pfc::string8 artwork_url;
                 if( uploader::extractAndUploadArtwork(p_out, fb2k::noAbort, artwork_url, hash) )
                 {
-                    const auto imageKey = std::u8string( artwork_url );
+                    const auto imageKey = qwr::u8string( artwork_url );
                         setImageKey(imageKey, shared->pm);
                         shared->handler->MaybeUpdatePresence(shared->pm);
                 }
@@ -207,7 +207,7 @@ void PresenceModifier::UpdateSmallImage()
     auto pd = presenceData_;
     auto pc = playback_control::get();
 
-    auto setImageKey = [&pd]( const std::u8string& imageKey ) {
+    auto setImageKey = [&pd]( const qwr::u8string& imageKey ) {
         pd->smallImageKey = imageKey;
         pd->presence.smallImageKey = pd->smallImageKey.empty() ? nullptr : pd->smallImageKey.c_str();
     };
@@ -228,7 +228,7 @@ void PresenceModifier::UpdateSmallImage()
     }
     case config::ImageSetting::Disabled:
     {
-        setImageKey( std::u8string{} );
+        setImageKey( qwr::u8string{} );
         break;
     }
     }
@@ -240,7 +240,7 @@ void PresenceModifier::UpdateSmallImage()
  *  Some composite characters that are composed of multiple different characters, such as some emojis,
  *  are counted as multiple characters.
  */
-size_t count_codepoints( const std::u8string& str )
+size_t count_codepoints( const qwr::u8string& str )
 {
     size_t count = 0;
     for ( auto& c: str )
@@ -263,7 +263,7 @@ void PresenceModifier::UpdateTrack( metadb_handle_ptr metadb )
     }
 
     auto pc = playback_control::get();
-    const auto queryData = [&pc, metadb = pd->metadb]( const std::u8string& query ) -> std::u8string {
+    const auto queryData = [&pc, metadb = pd->metadb]( const qwr::u8string& query ) -> qwr::u8string {
         titleformat_object::ptr tf;
         titleformat_compiler::get()->compile_safe( tf, query.c_str() );
         pfc::string8_fast result;
@@ -280,7 +280,7 @@ void PresenceModifier::UpdateTrack( metadb_handle_ptr metadb )
 
         return result.c_str();
     };
-    const auto fixStringLength = []( std::u8string& str ) {
+    const auto fixStringLength = []( qwr::u8string& str ) {
         // Required for correct calculation of utf-8 string length
         if ( count_codepoints(str) == 1 )
         { // minimum allowed non-zero string length is 2, so we need to pad it
@@ -298,10 +298,10 @@ void PresenceModifier::UpdateTrack( metadb_handle_ptr metadb )
     pd->details = queryData( config::detailsQuery );
     fixStringLength( pd->details );
 
-    const std::u8string lengthStr = queryData( "[%length_seconds_fp%]" );
+    const qwr::u8string lengthStr = queryData( "[%length_seconds_fp%]" );
     pd->trackLength = ( lengthStr.empty() ? 0 : stold( lengthStr ) );
 
-    const std::u8string durationStr = queryData( "[%playback_time_seconds%]" );
+    const qwr::u8string durationStr = queryData( "[%playback_time_seconds%]" );
 
     pd->presence.state = pd->state.c_str();
     pd->presence.details = pd->details.c_str();

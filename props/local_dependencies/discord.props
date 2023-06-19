@@ -8,7 +8,7 @@
   <PropertyGroup Label="UserMacros">
     <DiscordName>discord-rpc</DiscordName>
     <DiscordDirectory>$(MainDir)submodules\$(DiscordName)\</DiscordDirectory>
-    <DiscordResultDirectory>$(DiscordDirectory)_result\</DiscordResultDirectory>
+    <DiscordResultDirectory>$(DiscordDirectory)_result\$(Platform)\</DiscordResultDirectory>
     <IncludePath>$(DiscordResultDirectory)include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>

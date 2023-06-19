@@ -37,7 +37,7 @@ max_jobs: 1
 #---------------------------------#
 
 # Build worker image (VM template)
-image: Visual Studio 2019
+image: Visual Studio 2022
 
 # environment variables
 environment:
@@ -60,6 +60,8 @@ for:
       - workspaces\packages -> **\packages.config
       - _result\Win32_Release\bin\foo_discord_rich.ipdb
       - _result\Win32_Release\bin\foo_discord_rich.iobj
+      - _result\x64_Release\bin\foo_discord_rich.ipdb
+      - _result\x64_Release\bin\foo_discord_rich.iobj
 
 cache:
   - workspaces\packages -> **\packages.config
@@ -82,6 +84,7 @@ install:
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
 platform:
   - Win32
+  - x64
 
 # build Configuration, i.e. Debug, Release, etc.
 configuration:

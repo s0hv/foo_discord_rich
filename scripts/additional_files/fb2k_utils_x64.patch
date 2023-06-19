@@ -1,0 +1,168 @@
+diff --git a/submodules/fb2k_utils/src/fb2k_utils.vcxproj b/submodules/fb2k_utils/src/fb2k_utils.vcxproj
+index eb581a4..d17c908 100644
+--- a/submodules/fb2k_utils/src/fb2k_utils.vcxproj
++++ b/submodules/fb2k_utils/src/fb2k_utils.vcxproj
+@@ -5,10 +5,18 @@
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
+   </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <RootNamespace>fb2k_utils</RootNamespace>
+@@ -74,6 +82,15 @@
+       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <ClCompile>
++      <PreprocessorDefinitions>_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
++    </ClCompile>
++    <Link>
++      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
++    </Link>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <ClCompile>
+       <PreprocessorDefinitions>_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -90,6 +107,21 @@
+       <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <ClCompile>
++      <PreprocessorDefinitions>_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <StringPooling>true</StringPooling>
++      <BufferSecurityCheck>false</BufferSecurityCheck>
++      <FloatingPointModel>Fast</FloatingPointModel>
++    </ClCompile>
++    <ResourceCompile>
++      <Culture>0x0409</Culture>
++    </ResourceCompile>
++    <Link>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++    </Link>
++  </ItemDefinitionGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+   <ImportGroup Label="ExtensionTargets">
+   </ImportGroup>
+diff --git a/submodules/fb2k_utils/src/qwr/file_helpers.cpp b/submodules/fb2k_utils/src/qwr/file_helpers.cpp
+index 18e98db..7601f52 100644
+--- a/submodules/fb2k_utils/src/qwr/file_helpers.cpp
++++ b/submodules/fb2k_utils/src/qwr/file_helpers.cpp
+@@ -283,7 +283,7 @@ void WriteFile( const fs::path& path, qwr::u8string_view content, bool write_bom
+         CloseHandle( hFile );
+     } );
+ 
+-    HANDLE hFileMapping = CreateFileMapping( hFile, nullptr, PAGE_READWRITE, 0, content.length() + offset, nullptr );
++    HANDLE hFileMapping = CreateFileMapping( hFile, nullptr, PAGE_READWRITE, 0, static_cast<int>( content.length() + offset ), nullptr );
+     qwr::error::CheckWinApi( hFileMapping, "CreateFileMapping" );
+     final_action autoMapping( [hFileMapping] {
+         CloseHandle( hFileMapping );
+@@ -335,7 +335,7 @@ std::optional<fs::path> FileDialog( const std::wstring& title,
+ 
+         if ( !options.filterSpec.empty() )
+         {
+-            hr = pfd->SetFileTypes( options.filterSpec.size(), options.filterSpec.data() );
++            hr = pfd->SetFileTypes( static_cast<int>( options.filterSpec.size() ), options.filterSpec.data() );
+             qwr::error::CheckHR( hr, "SetFileTypes" );
+         }
+ 
+diff --git a/submodules/fb2k_utils/src/qwr/pfc_helpers_ui.h b/submodules/fb2k_utils/src/qwr/pfc_helpers_ui.h
+index 8dc78a3..ab58ba6 100644
+--- a/submodules/fb2k_utils/src/qwr/pfc_helpers_ui.h
++++ b/submodules/fb2k_utils/src/qwr/pfc_helpers_ui.h
+@@ -20,7 +20,7 @@ std::basic_string<T> uGetWindowText( HWND wnd )
+ 
+     std::wstring text;
+     text.resize( size + 1 );
+-    (void)::GetWindowText( wnd, text.data(), text.size() );
++    (void)::GetWindowText( wnd, text.data(), static_cast<int>( text.size() ));
+     text.resize( wcslen( text.c_str() ) );
+ 
+     if constexpr ( std::is_same_v<T, wchar_t> )
+diff --git a/submodules/fb2k_utils/src/qwr/text_helpers.cpp b/submodules/fb2k_utils/src/qwr/text_helpers.cpp
+index de8b365..4e87016 100644
+--- a/submodules/fb2k_utils/src/qwr/text_helpers.cpp
++++ b/submodules/fb2k_utils/src/qwr/text_helpers.cpp
+@@ -68,7 +68,7 @@ std::optional<UINT> DetectCharSet( std::string_view text )
+     constexpr int maxEncodings = 2;
+     int encodingCount = maxEncodings;
+     std::array<DetectEncodingInfo, maxEncodings> encodings;
+-    int iTextSize = text.size();
++    int iTextSize = static_cast<int>( text.size() );
+ 
+     hr = lang->DetectInputCodepage( MLDETECTCP_NONE, 0, const_cast<char*>( text.data() ), &iTextSize, encodings.data(), &encodingCount );
+     if ( FAILED( hr ) || !encodingCount )
+diff --git a/submodules/fb2k_utils/src/qwr/thread_pool.cpp b/submodules/fb2k_utils/src/qwr/thread_pool.cpp
+index 49b5ad4..5b204fc 100644
+--- a/submodules/fb2k_utils/src/qwr/thread_pool.cpp
++++ b/submodules/fb2k_utils/src/qwr/thread_pool.cpp
+@@ -11,7 +11,7 @@ namespace qwr
+ ThreadPool::ThreadPool( const std::string& threadName,
+                         size_t maxThreadCount )
+     : threadName_( threadName )
+-    , maxThreadCount_( std::max<size_t>( std::min( std::thread::hardware_concurrency(), maxThreadCount ), 1 ) )
++    , maxThreadCount_( std::max<size_t>( std::min<size_t>( std::thread::hardware_concurrency(), maxThreadCount ), 1 ) )
+ {
+     threads_.reserve( maxThreadCount_ );
+ }
+diff --git a/submodules/fb2k_utils/src/qwr/unicode.cpp b/submodules/fb2k_utils/src/qwr/unicode.cpp
+index 73fe946..be9f176 100644
+--- a/submodules/fb2k_utils/src/qwr/unicode.cpp
++++ b/submodules/fb2k_utils/src/qwr/unicode.cpp
+@@ -12,11 +12,11 @@ std::wstring ToWide( qwr::u8string_view src )
+         return std::wstring{};
+     }
+ 
+-    size_t stringLen = MultiByteToWideChar( CP_UTF8, 0, src.data(), src.size(), nullptr, 0 );
++    size_t stringLen = MultiByteToWideChar( CP_UTF8, 0, src.data(), static_cast<int>( src.size() ), nullptr, 0 );
+     std::wstring strVal;
+     strVal.resize( stringLen );
+ 
+-    stringLen = MultiByteToWideChar( CP_UTF8, 0, src.data(), src.size(), strVal.data(), strVal.size() );
++    stringLen = MultiByteToWideChar( CP_UTF8, 0, src.data(), static_cast<int>( src.size() ), strVal.data(), static_cast<int>( strVal.size() ) );
+     strVal.resize( stringLen );
+ 
+     return strVal;
+@@ -34,11 +34,11 @@ std::wstring ToWide_FromAcp( std::string_view src )
+         return std::wstring{};
+     }
+ 
+-    size_t stringLen = MultiByteToWideChar( CP_ACP, 0, src.data(), src.size(), nullptr, 0 );
++    size_t stringLen = MultiByteToWideChar( CP_ACP, 0, src.data(), static_cast<int>( src.size() ), nullptr, 0 );
+     std::wstring strVal;
+     strVal.resize( stringLen );
+ 
+-    stringLen = MultiByteToWideChar( CP_ACP, 0, src.data(), src.size(), strVal.data(), strVal.size() );
++    stringLen = MultiByteToWideChar( CP_ACP, 0, src.data(), static_cast<int>( src.size() ), strVal.data(), static_cast<int>( strVal.size() ) );
+     strVal.resize( stringLen );
+ 
+     return strVal;
+@@ -51,11 +51,11 @@ qwr::u8string ToU8( std::wstring_view src )
+         return qwr::u8string{};
+     }
+ 
+-    size_t stringLen = WideCharToMultiByte( CP_UTF8, 0, src.data(), src.size(), nullptr, 0, nullptr, nullptr );
++    size_t stringLen = WideCharToMultiByte( CP_UTF8, 0, src.data(), static_cast<int>( src.size() ), nullptr, 0, nullptr, nullptr );
+     qwr::u8string strVal;
+     strVal.resize( stringLen );
+ 
+-    stringLen = WideCharToMultiByte( CP_UTF8, 0, src.data(), src.size(), strVal.data(), strVal.size(), nullptr, nullptr );
++    stringLen = WideCharToMultiByte( CP_UTF8, 0, src.data(), static_cast<int>( src.size() ), strVal.data(), static_cast<int>( strVal.size() ), nullptr, nullptr );
+     strVal.resize( stringLen );
+ 
+     return strVal;
