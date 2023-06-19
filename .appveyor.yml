@@ -129,11 +129,11 @@ before_package:
 
 artifacts:
   # pushing a single file with environment variable in path and "Deployment name" specified
-  - path: _result\$(platform)_$(configuration)\foo_discord_rich.fb2k-component
+  - path: _result\$(platform)_$(configuration)\foo_discord_rich_$(platform).fb2k-component
     name: DRP package (Release)
-  - path: _result\$(platform)_$(configuration)\foo_discord_rich_pdb.zip
+  - path: _result\$(platform)_$(configuration)\foo_discord_rich_pdb_$(platform).zip
     name: DRP PDB package (Release)
-  - path: _result\$(platform)_$(configuration)\foo_discord_rich.fb2k-component_debug
+  - path: _result\$(platform)_$(configuration)\foo_discord_rich_$(platform).fb2k-component_debug
     name: DRP package (Debug)
 
 #---------------------------------#
