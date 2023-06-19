@@ -36,7 +36,7 @@ def pack(is_debug = False):
     # At least one must be defined
     assert(pack_win32 or pack_x64)
 
-    output_dir = result_machine_dir
+    output_dir = result_machine_dir if pack_win32 else result_machine_dir_x64
     output_dir.mkdir(parents=True, exist_ok=True)
 
     component_zip = output_dir/"foo_discord_rich.fb2k-component"
