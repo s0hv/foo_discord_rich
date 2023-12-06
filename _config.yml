@@ -6,7 +6,7 @@ plugins:
 readme_index:
   enabled: false
 
-remote_theme: pmarsceill/just-the-docs
+theme: just-the-docs
 
 exclude:
   - Gemfile
