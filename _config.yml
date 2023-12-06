@@ -13,6 +13,10 @@ exclude:
   - Gemfile.lock
   - build_scripts
   - "*.bat"
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
 
 markdown: kramdown
 kramdown:
