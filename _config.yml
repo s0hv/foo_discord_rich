@@ -24,6 +24,7 @@ kramdown:
 
 baseurl: "/foo_discord_rich/"
 url: "https://s0hv.github.io"
+repository: "s0hv/foo_discord_rich"
 username: s0hv
 
 permalink: pretty
