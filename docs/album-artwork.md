@@ -95,6 +95,11 @@ The code for this uploader can be found [here](https://github.com/realoksi/fooba
 and the releases can be found [here](https://github.com/realoksi/foobar2000-catbox/releases).
 The installation instructions are the same as for [Standalone imgur uploader](#standalone-imgur-uploader)
 
+### Amazon S3 for Python 3.7 or later
+This script allows you to upload images to an Amazon S3 bucket, 
+and it can be found [here](https://gist.github.com/okdargy/a55f40c7b339ee0a8b10a9827015453b).
+The author recommends the [ShareX Amazon S3 guide](https://getsharex.com/docs/amazon-s3) 
+if you don't know how to set up a publicly accessible S3 bucket.
 
 ## Descriptions of options
 
