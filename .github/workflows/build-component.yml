@@ -1,0 +1,225 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Build component
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+  workflow_dispatch:
+    inputs:
+      verbosity:
+        description: Verbosity of msbuild
+        default: 'normal'
+        type: choice
+        options:
+          - quiet
+          - minimal
+          - normal
+          - detailed
+          - diagnostic
+
+      platform:
+        type: choice
+        default: '"Win32", "x64"'
+        options:
+          - '"Win32", "x64"'
+          - '"Win32"'
+          - '"x64"'
+
+      build_configuration:
+        type: choice
+        default: '"Release", "Debug"'
+        options:
+          - '"Release", "Debug"'
+          - '"Release"'
+          - '"Debug"'
+
+  pull_request:
+    branches:
+      - '*'
+      - '!gh-pages'
+    paths-ignore:
+      - 'README.md'
+      - 'THIRD_PARTY_NOTICES.md'
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: workspaces/foo_discord_rich.sln
+  BUILD_CONFIGURATION: ${{ inputs.build_configuration || '"Release", "Debug"' }}
+  PLATFORM: ${{ inputs.platform || '"Win32", "x64"' }}
+
+permissions:
+  contents: read
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    outputs:
+      BUILD_CONFIGURATION: ${{ env.BUILD_CONFIGURATION }}
+      PLATFORM: ${{ env.PLATFORM }}
+      Debug: ${{ steps.compute.outputs.Debug }}
+      Release: ${{ steps.compute.outputs.Release }}
+    steps:
+      - name: Compute outputs
+        id: compute
+        run: |
+          echo "Debug=${{ contains(fromJSON(format('[{0}]', env.BUILD_CONFIGURATION)), 'Debug') }}" >> $GITHUB_OUTPUT
+          echo "Release=${{ contains(fromJSON(format('[{0}]', env.BUILD_CONFIGURATION)), 'Release') }}" >> $GITHUB_OUTPUT
+
+      - name: Print outputs
+        run: |
+          echo "BUILD_CONFIGURATION: ${{ env.BUILD_CONFIGURATION }}"
+          echo "PLATFORM: ${{ env.PLATFORM }}"
+          echo "Debug: ${{ steps.compute.outputs.Debug }}"
+          echo "Release: ${{ steps.compute.outputs.Release }}"
+
+
+  build:
+    runs-on: windows-2022
+    needs: [compute]
+
+    strategy:
+      matrix:
+        build_configuration: ${{ fromJSON(format('[{0}]', needs.compute.outputs.BUILD_CONFIGURATION)) }}
+        platform: ${{ fromJSON(format('[{0}]', needs.compute.outputs.PLATFORM)) }}
+
+    steps:  
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        
+    - name: Install semver
+      run: pip install semver
+
+    - name: Setup python dependencies
+      run: python -u scripts\setup.py
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Delete components
+      if: false
+      run: |
+              Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+              $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+              $componentsToRemove= @(
+                  "Microsoft.VisualStudio.Component.VC.MFC"
+                  "Microsoft.VisualStudio.Component.VC.ATL"
+              )
+              [string]$workloadArgs = $componentsToRemove | ForEach-Object {" --remove " +  $_}
+              $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
+              # should be run twice
+              $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+              $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+    
+    - name: Install components
+      run: |
+              Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+              $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+              $componentsToRemove= @(
+                "Microsoft.VisualStudio.Component.VC.14.36.17.6.ATL"
+                "Microsoft.VisualStudio.Component.VC.14.36.17.6.MFC"
+                "Microsoft.VisualStudio.Component.VC.14.36.17.6.x86.x64"
+                "Microsoft.VisualStudio.Component.Windows10SDK.18362"
+              )
+              [string]$workloadArgs = $componentsToRemove | ForEach-Object {" --add " +  $_}
+              $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
+              # should be run twice
+              $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+              $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: msbuild /m /p:Configuration=${{matrix.build_configuration}} /p:Platform=${{matrix.platform}} /v:${{inputs.verbosity == '' && 'normal' || inputs.verbosity}} ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: '_result-${{matrix.platform}}_${{matrix.build_configuration}}'
+        path: |
+          _result
+          !_result/AllPlatforms
+          !_result/${{matrix.platform}}_${{matrix.build_configuration}}/temp
+
+    - name: Upload static artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: static-files-${{ matrix.build_configuration }}
+        overwrite: true
+        path: |
+          licences/
+          LICENCE
+          CHANGELOG.md
+        
+  pack-component:
+    needs: [build, compute]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: './_result'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Pack component Release
+        if: ${{ needs.compute.outputs.Release }}
+        run: 'python scripts/pack_component.py'
+
+      - name: Pack component Debug
+        if: ${{ needs.compute.outputs.Debug }}
+        run: 'python scripts/pack_component.py --debug'
+
+      - name: Upload build artifact Release
+        if: ${{ !startsWith(github.ref, 'refs/tags/') && needs.compute.outputs.Release }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'foo_discord_rich.fb2k-component'
+          path: _result/Win32_Release/foo_discord_rich.fb2k-component
+
+      - name: Upload build artifact Debug
+        if: ${{ !startsWith(github.ref, 'refs/tags/') && needs.compute.outputs.Debug }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'foo_discord_rich.fb2k-component_debug'
+          path: _result/Win32_Debug/foo_discord_rich.fb2k-component
+
+      - name: Upload release debug symbols
+        if: ${{ !startsWith(github.ref, 'refs/tags/') && needs.compute.outputs.Release }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: foo_discord_rich_pdb.zip
+          path: _result/Win32_Release/foo_discord_rich_pdb.zip
+
+      - name: Rename debug component
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cp _result/Win32_Debug/foo_discord_rich.fb2k-component _result/Win32_Debug/foo_discord_rich.fb2k-component_debug
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            _result/Win32_Release/foo_discord_rich_pdb.zip
+            _result/**/*.fb2k-component
+            _result/**/*.fb2k-component_debug
+            
+            
